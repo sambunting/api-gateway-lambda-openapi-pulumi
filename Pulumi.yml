@@ -1,0 +1,3 @@
+name: API-Gateway-OpenAPI-Test
+runtime:
+  name: nodejs
