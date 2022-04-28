@@ -8,6 +8,9 @@ exports.handler = async (event) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ok: true }),
+      body: JSON.stringify({ 
+        ok: true,
+        variable1: event?.pathParameters?.variable1
+      }),
     };
 };

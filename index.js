@@ -61,6 +61,37 @@ const exampleRestApi = new aws.apigateway.RestApi("exampleRestApi", {
             },
           },
         },
+        "/test/{variable1}": {
+          parameters: [
+            {
+              in: "path",
+              name: "variable1",
+              schema: {
+                type: "string"
+              },
+              required: true,
+              description: "The first variable of the url"
+            }
+          ],
+          get: {
+            "x-amazon-apigateway-integration": {
+              httpMethod: "POST",
+              type: "aws_proxy",
+              uri: arn,
+              responses: {
+                ".*": {
+                  statusCode: 200,
+                },
+              },
+            },
+            responses: {
+              200: {
+                description: "200 response",
+                content: {},
+              },
+            },
+          },
+        },
       },
     })
   ),
@@ -74,6 +105,16 @@ const lambdaPermission = new aws.lambda.Permission("lambda-permission", {
   principal: "apigateway.amazonaws.com",
   sourceArn: exampleRestApi.executionArn.apply((arn) => `${arn}/*/GET/path1`),
 });
+
+// Create a permission so API Gateway can trigger/invoke the lambda function.
+// This will also create a trigger
+const lambdaPermission2 = new aws.lambda.Permission("lambda-permission2", {
+  action: "lambda:invokeFunction",
+  function: testLambda,
+  principal: "apigateway.amazonaws.com",
+  sourceArn: exampleRestApi.executionArn.apply((arn) => `${arn}/*/GET/test/{variable1}`),
+});
+
 
 // Define the API Gateway deployment, and the triggers for a redeployment
 const exampleDeployment = new aws.apigateway.Deployment("exampleDeployment", {
